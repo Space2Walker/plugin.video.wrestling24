@@ -6,7 +6,7 @@
 import sys
 import xbmcgui
 import xbmcplugin
-import resources.lib.xvideos as xvideos
+import resources.lib.wrestling24 as wrestling24
 import resources.lib.helper as helper
 from urlparse import parse_qsl
 
@@ -34,14 +34,44 @@ if __name__ == '__main__':
     #           1st Start           #
     #################################
     if params == {}:
-        # Search
-        list_item = xbmcgui.ListItem(label='Search')
-        url = helper.get_url(_url, action='search')
+        # WWE
+        list_item = xbmcgui.ListItem(label='WWE')
+        url = helper.get_url(_url, action='list_shows', cat_id=16086)
+        is_folder = True
+        xbmcplugin.addDirectoryItem(_handle, url, list_item, is_folder)
+
+        # WWE Network
+        list_item = xbmcgui.ListItem(label='WWE Network')
+        url = helper.get_url(_url, action='list_shows', cat_id=662)
+        is_folder = True
+        xbmcplugin.addDirectoryItem(_handle, url, list_item, is_folder)
+
+        # WWE PPV
+        list_item = xbmcgui.ListItem(label='WWE PPV')
+        url = helper.get_url(_url, action='list_shows', cat_id=657)
         is_folder = True
         xbmcplugin.addDirectoryItem(_handle, url, list_item, is_folder)
 
         # endOfDirectory
         xbmcplugin.endOfDirectory(_handle)
+        quit()
+
+    #################################
+    #            list shows         #
+    #################################
+    if params['action'] == 'list_shows':
+        # list shows from a provided cat_id.
+        shows = wrestling24.get_shows(params['cat_id'])
+        helper.list_shows(_url, _handle, shows) 
+        quit()
+
+    #################################
+    #          list episodes        #
+    #################################
+    if params['action'] == 'list_episodes':
+        # list episodes from a provided show.
+        episodes = wrestling24.get_episodes(params['link'])
+        helper.list_episodes(_handle, _url, episodes, False) 
         quit()
 
     #################################
@@ -52,38 +82,6 @@ if __name__ == '__main__':
         xvideos.play_video(_handle, params['video'])
         quit()
 
-    #################################
-    #            search             #
-    #################################
-    if params['action'] == 'search':
-        s_therm = helper.get_search()
-
-        if s_therm == None:
-            quit()
-
-        dialog = xbmcgui.Dialog()
-        ret = dialog.select('Search by',
-                            ['Relevance', 'Upload Date',
-                             'Raiting', 'Length', 'Views'])
-
-        if ret == 0:
-            sort = '&sort=relevance'
-        if ret == 1:
-            sort = '&sort=uploaddate'
-        if ret == 2:
-            sort = '&sort=raiting'
-        if ret == 3:
-            sort = '&sort=length'
-        if ret == 4:
-            sort = '&sort=views'
-
-        link = 'https://www.xvideos.com/?k=' + s_therm + sort
-        videos = xvideos.get_vids(link, 'search')
-        has_next = True
-
-        helper.list_videos(_handle, _url, videos,
-                           link, 'search', has_next)
-        quit()
 
     #################################
     #              next             #

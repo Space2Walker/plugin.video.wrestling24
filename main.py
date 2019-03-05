@@ -99,9 +99,10 @@ if __name__ == '__main__':
         soup = BeautifulSoup(req.text, "html.parser")
         req.close()
         iframe = soup.find("iframe", attrs={"class": "embed-responsive-item"})
-        link = iframe.attrs['src']
+        link = str(iframe.attrs['src'])
         xbmc.log(str(link),level=xbmc.LOGNOTICE)
         de_link = helper.resolve_url(link)
+        xbmc.log(str(de_link),level=xbmc.LOGNOTICE)
         wrestling24.play_video(_handle, de_link)
         quit()
 

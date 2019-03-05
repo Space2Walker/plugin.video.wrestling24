@@ -152,8 +152,8 @@ def list_episodes(_url, _handle, episodes, next, page=1):
         # Set additional info for the list item.
         # 'mediatype' is needed for skin to display info for this ListItem correctly.
         list_item.setInfo('episode', {'title': title, 
-                                    'plot': plot,
-                                    'mediatype': 'video'})
+                                      'plot': plot,
+                                      'mediatype': 'video'})
         # Set graphics (thumbnail, fanart, banner, poster, landscape etc.) for the list item.
         # Here we use the same image for all items for simplicity's sake.
         list_item.setArt({'thumb': episode['thumb'], 'icon': episode['thumb'], 'poster': episode['thumb'], 'fanart': episode['thumb']})
@@ -186,7 +186,11 @@ def list_parts(_url, _handle, parts):
         label = part['hoster'] + ' ' + part['part']
         list_item = xbmcgui.ListItem(label=label)
         url = get_url(_url, action='play', link=part['link'])
-        list_item.setProperty('IsPlayable', 'false')
+        list_item.setInfo('video', {'title': label,
+                                   'plot': 'plot',
+                                   'mediatype': 'video'})
+
+        list_item.setProperty('IsPlayable', 'true')
         is_folder = False
         # Add our item to the Kodi virtual folder listing.
         xbmcplugin.addDirectoryItem(_handle, url, list_item, is_folder)
@@ -206,3 +210,5 @@ def resolve_url(url):
         return False
     else: 
         return stream_url
+
+    

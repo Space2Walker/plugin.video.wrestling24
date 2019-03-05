@@ -9,6 +9,7 @@ import xbmcplugin
 import requests
 from urllib import urlencode
 from bs4 import BeautifulSoup
+import urlresolver
 
 #################################
 #           get_soup            #
@@ -121,8 +122,10 @@ def list_shows(_url, _handle, shows):
 '''
 Create the list of episodes in the Kodi interface.
 '''
-def list_episodes(_handle, _url, episodes, next, page=1):
-  
+def list_episodes(_url, _handle, episodes, next, page=1):
+    xbmcplugin.setPluginCategory(_handle, 'My Video Collection')
+    xbmcplugin.setContent(_handle, 'videos')
+ 
     ##############################################
     #                Next
     if next == True:
@@ -157,7 +160,7 @@ def list_episodes(_handle, _url, episodes, next, page=1):
        
         # Create a URL for a plugin recursive call.
         # Example: plugin://plugin.video.example/?action=play&video=http://www.vidsplay.com/wp-content/uploads/2017/04/crab.mp4
-        url = get_url(_url, action='play', video=episode['link'])
+        url = get_url(_url, action='list_parts', link=episode['link'])
         # Add the list item to a virtual Kodi folder.
         # is_folder = False means that this item won't open any sub-list.
         is_folder = True
@@ -166,3 +169,40 @@ def list_episodes(_handle, _url, episodes, next, page=1):
 
     # Finish creating a virtual folder.
     xbmcplugin.endOfDirectory(_handle)
+
+
+#################################
+#         list_parts           #
+#################################
+'''
+Create the list of shows in the Kodi interface.
+'''
+def list_parts(_url, _handle, parts):
+    
+    xbmcplugin.setPluginCategory(_handle, 'My Video Collection')
+    xbmcplugin.setContent(_handle, 'videos')
+ 
+    for part in parts:
+        label = part['hoster'] + ' ' + part['part']
+        list_item = xbmcgui.ListItem(label=label)
+        url = get_url(_url, action='play', link=part['link'])
+        list_item.setProperty('IsPlayable', 'false')
+        is_folder = False
+        # Add our item to the Kodi virtual folder listing.
+        xbmcplugin.addDirectoryItem(_handle, url, list_item, is_folder)
+    # Add a sort method for the virtual folder items (alphabetically, ignore articles)
+    xbmcplugin.addSortMethod(_handle, xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
+    # Finish creating a virtual folder.
+    xbmcplugin.endOfDirectory(_handle)
+
+def resolve_url(url):
+    duration=7500 #in milliseconds
+    message = "Cannot Play URL"
+    stream_url = urlresolver.HostedMediaFile(url=url).resolve()
+    # If urlresolver returns false then the video url was not resolved.
+    if not stream_url:
+        dialog = xbmcgui.Dialog()
+        dialog.notification("URL Resolver Error", message, xbmcgui.NOTIFICATION_INFO, duration)
+        return False
+    else: 
+        return stream_url

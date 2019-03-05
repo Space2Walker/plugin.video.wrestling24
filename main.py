@@ -9,6 +9,9 @@ import xbmcplugin
 import resources.lib.wrestling24 as wrestling24
 import resources.lib.helper as helper
 from urlparse import parse_qsl
+import requests
+from bs4 import BeautifulSoup
+
 
 # Get the plugin url in plugin:// notation.
 _url = sys.argv[0]
@@ -71,40 +74,61 @@ if __name__ == '__main__':
     if params['action'] == 'list_episodes':
         # list episodes from a provided show.
         episodes = wrestling24.get_episodes(params['link'])
-        helper.list_episodes(_handle, _url, episodes, False) 
+        helper.list_episodes(_url, _handle,  episodes, False) 
         quit()
+
+    #################################
+    #          list parts           #
+    #################################
+    if params['action'] == 'list_parts':
+        # list parts from a provided episode.
+        parts = wrestling24.get_parts(params['link'])
+        helper.list_parts(_url, _handle, parts) 
+        quit()
+
+
 
     #################################
     #             play              #
     #################################
     if params['action'] == 'play':
-        # Play a video from a provided URL.
-        xvideos.play_video(_handle, params['video'])
+    #    # Play a video from a provided URL.
+    #    
+    #    quit()
+        req = requests.get(params['link'], headers={'referer': "http://watchwrestling24.net"})
+        soup = BeautifulSoup(req.text, "html.parser")
+        req.close()
+        iframe = soup.find("iframe", attrs={"class": "embed-responsive-item"})
+        link = iframe.attrs['src']
+        xbmc.log(str(link),level=xbmc.LOGNOTICE)
+        de_link = helper.resolve_url(link)
+        wrestling24.play_video(_handle, de_link)
         quit()
+
 
 
     #################################
     #              next             #
     #################################
-    if params['action'] == 'next':
-        # ads a &p= at first and raises the page number every call
+    # if params['action'] == 'next':
+    #     # ads a &p= at first and raises the page number every call
 
-        if params['page'] == '1':
-            url = params['link'] + '&p=' + str(params['page'])
-        else:
-            url = params['link'] + str(params['page'])
+    #     if params['page'] == '1':
+    #         url = params['link'] + '&p=' + str(params['page'])
+    #     else:
+    #         url = params['link'] + str(params['page'])
 
-        page = int(params['page']) + 1
-        videos = xvideos.get_vids(url, params['category'])
+    #     page = int(params['page']) + 1
+    #     videos = xvideos.get_vids(url, params['category'])
 
-        if int(videos[0]['page']) == page:
-            has_next = False
-        else:
-            has_next = True
+    #     if int(videos[0]['page']) == page:
+    #         has_next = False
+    #     else:
+    #         has_next = True
 
-        helper.list_videos(_handle, _url, videos, url,
-                           params['category'], has_next, page )
-        quit()
+    #     helper.list_videos(_handle, _url, videos, url,
+    #                        params['category'], has_next, page )
+    #     quit()
 
     #################################
     #             error             #

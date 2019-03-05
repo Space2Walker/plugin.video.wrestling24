@@ -12,7 +12,7 @@ import resources.lib.helper as helper
 def get_shows(cat_id):
     url = 'http://watchwrestling24.net/'
     shows = []
-    
+
     soup = helper.get_soup(url)
 
     div = soup.find_all(id="nav-menu-item-" + str(cat_id))
@@ -53,7 +53,7 @@ def get_episodes(url):
                 ]))
     return episode_info
 
-def get_links(url):
+def get_parts(url):
     soup = helper.get_soup(url)
     links = []
 
@@ -63,28 +63,21 @@ def get_links(url):
         hoster = p.text
         content = p.next_sibling.find_all('a')
 
-        hoster_dict = {}
-        hoster_dict['hoster'] = hoster
-        hoster_dict['link'] = []
-
         for link in content:
-            hoster_dict['link'].append(link.get('href'))
-   
-        links.append(hoster_dict)
+            links.append(dict([('hoster',hoster),
+                               ('part', link.text),
+                               ('link', link.get('href'))]))   
 
     return links
 
-def play_video(_handle, video):
+def play_video(_handle, link):
     """
     Play a video by the provided path.
 
     :param path: Fully-qualified video URL
     :type path: str
     """
-    soup = helper.get_soup(video)
-    script_tags = soup.find_all("script", type="text/javascript") 
-    tag_split = script_tags[18].string.split("jsplayer, '")[-1] #take the 18th and hope
-    link = tag_split.split("'")[0]
+   
 
     # Create a playable item with a path to play.
     play_item = xbmcgui.ListItem(path=link)

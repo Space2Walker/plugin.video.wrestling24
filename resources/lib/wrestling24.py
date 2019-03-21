@@ -7,6 +7,8 @@ import xbmcgui
 import xbmcplugin
 import resources.lib.helper as helper
 
+
+
 def get_shows(cat_id):
     url = 'http://watchwrestling24.net/'
     shows = []
@@ -16,12 +18,13 @@ def get_shows(cat_id):
     div = soup.find_all(id="nav-menu-item-" + str(cat_id))
     show_div = div[0].ul.find_all("a")
 
-    for li in show_div:
+    for li in show_div: 
         shows.append(
             dict([
                 ('show', li.text),
-                ('link', li.get('href'))
-                ]))
+                ('link', li.get('href')),
+
+            ]))
 
     return shows
 
@@ -29,7 +32,7 @@ def get_episodes(url):
     soup = helper.get_soup(url)
     episode_info = []
     episodes = soup.find_all("div", class_="picture-content")
-
+    
     for info in episodes:
         res = ''
         views = ''
@@ -46,6 +49,7 @@ def get_episodes(url):
                 ('res', res),
                 ('views', views),
                 ('uploader', uploader),
+                #('category', category)
                 ]))
     return episode_info
 
@@ -62,18 +66,22 @@ def get_parts(url):
         for link in content:
             links.append(dict([('hoster',hoster),
                                ('part', link.text),
-                               ('link', link.get('href'))]))
+                               ('link', link.get('href'))]))   
 
     return links
 
 def play_video(_handle, link):
-    """ Play a video by the provided path.
+    """
+    Play a video by the provided path.
+
     :param path: Fully-qualified video URL
-    :type path: str """
+    :type path: str
+    """
+   
 
     # Create a playable item with a path to play.
     play_item = xbmcgui.ListItem(path=link)
-
+  
     # Pass the item to the Kodi player.
     xbmcplugin.setResolvedUrl(_handle, True, listitem=play_item)
 

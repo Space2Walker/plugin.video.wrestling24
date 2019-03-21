@@ -14,7 +14,7 @@ import urlresolver
 #################################
 #           get_soup            #
 #################################
-# takes a url and makes a soup
+# takes a url and makes a soup 
 
 def get_soup(url):
     req = requests.get(url)
@@ -22,6 +22,27 @@ def get_soup(url):
     req.close()
 
     return soup
+
+#################################
+#        convert_duration       #
+#################################
+# takes a duration like "1 h 53 min" and converts it to seconds.
+def convert_duration(duration):
+    if duration.find("h") != -1:  #
+        h = int(duration[0])
+        inta = duration[4:-4]
+        minute = int(duration[4:-4]) + (h * 60)
+        duration = minute * 60
+        return duration #in seconds
+
+    if duration.find("min") != -1:
+        duration = int(duration[:-4]) * 60
+        return duration #in seconds
+
+    if duration.find("sec") != -1:
+        duration = int(duration[:-4])
+        return duration #in seconds
+
 
 #################################
 #           get_url             #
@@ -70,7 +91,7 @@ def list_shows(_url, _handle, shows):
     # for this type of content.
     xbmcplugin.setContent(_handle, 'videos')
     # Get video shows
-
+    
     # Iterate through shows
     for show in shows:
         # Create a list item with a text label and a thumbnail image.
@@ -81,7 +102,7 @@ def list_shows(_url, _handle, shows):
         # For available properties see the following link:
         # https://codedocs.xyz/xbmc/xbmc/group__python__xbmcgui__listitem.html#ga0b71166869bda87ad744942888fb5f14
         # 'mediatype' is needed for a skin to display info for this ListItem correctly.
-
+       
         # Create a URL for a plugin recursive call.
         # Example: plugin://plugin.video.example/?action=listing&show=Animals
         url = get_url(_url, action='list_episodes', show=show['show'], link=show['link'])
@@ -98,17 +119,31 @@ def list_shows(_url, _handle, shows):
 #################################
 #         list_episodes         #
 #################################
-#Create the list of episodes in the Kodi interface.
-
-def list_episodes(_url, _handle, episodes):
+'''
+Create the list of episodes in the Kodi interface.
+'''
+def list_episodes(_url, _handle, episodes, next, page=1):
     xbmcplugin.setPluginCategory(_handle, 'My Video Collection')
     xbmcplugin.setContent(_handle, 'videos')
+ 
+    ##############################################
+    #                Next
+    if next == True:
+        list_item = xbmcgui.ListItem(label='Next')
+    
+        url = get_url(_url, action='next', link=link, page=page ,category=category)
+        # is_folder = True means that this item opens a sub-list of lower level items.
+        is_folder = True
+
+        xbmcplugin.addDirectoryItem(_handle, url, list_item, is_folder)
+    #
+    #############################################
 
     # Iterate through videos.
     for episode in episodes:
         #set viewers Tag for sorting
-
-        title = episode['title']
+        
+        title = episode['title'] 
 
         # Create a list item with a text label and a thumbnail image.
         list_item = xbmcgui.ListItem(label=title)
@@ -116,13 +151,13 @@ def list_episodes(_url, _handle, episodes):
         plot = ""
         # Set additional info for the list item.
         # 'mediatype' is needed for skin to display info for this ListItem correctly.
-        list_item.setInfo('episode', {'title': title,
+        list_item.setInfo('episode', {'title': title, 
                                       'plot': plot,
                                       'mediatype': 'video'})
         # Set graphics (thumbnail, fanart, banner, poster, landscape etc.) for the list item.
         # Here we use the same image for all items for simplicity's sake.
         list_item.setArt({'thumb': episode['thumb'], 'icon': episode['thumb'], 'poster': episode['thumb'], 'fanart': episode['thumb']})
-
+       
         # Create a URL for a plugin recursive call.
         # Example: plugin://plugin.video.example/?action=play&video=http://www.vidsplay.com/wp-content/uploads/2017/04/crab.mp4
         url = get_url(_url, action='list_parts', link=episode['link'])
@@ -143,10 +178,10 @@ def list_episodes(_url, _handle, episodes):
 Create the list of shows in the Kodi interface.
 '''
 def list_parts(_url, _handle, parts):
-
+    
     xbmcplugin.setPluginCategory(_handle, 'My Video Collection')
     xbmcplugin.setContent(_handle, 'videos')
-
+ 
     for part in parts:
         label = part['hoster'] + ' ' + part['part']
         list_item = xbmcgui.ListItem(label=label)
@@ -173,6 +208,7 @@ def resolve_url(url):
         dialog = xbmcgui.Dialog()
         dialog.notification("URL Resolver Error", message, xbmcgui.NOTIFICATION_INFO, duration)
         return False
-    else:
+    else: 
         return stream_url
 
+    

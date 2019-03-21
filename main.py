@@ -3,15 +3,15 @@
 # Created : 02.03.2019
 # License: GPL v.3 https://www.gnu.org/copyleft/gpl.html
 
+import requests
 import sys
 import xbmcgui
 import xbmcplugin
 import resources.lib.wrestling24 as wrestling24
 import resources.lib.helper as helper
-from urlparse import parse_qsl
-import requests
-from bs4 import BeautifulSoup
 
+from urlparse import parse_qsl
+from bs4 import BeautifulSoup
 
 # Get the plugin url in plugin:// notation.
 _url = sys.argv[0]
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     if params['action'] == 'list_shows':
         # list shows from a provided cat_id.
         shows = wrestling24.get_shows(params['cat_id'])
-        helper.list_shows(_url, _handle, shows) 
+        helper.list_shows(_url, _handle, shows)
         quit()
 
     #################################
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     if params['action'] == 'list_episodes':
         # list episodes from a provided show.
         episodes = wrestling24.get_episodes(params['link'])
-        helper.list_episodes(_url, _handle,  episodes, False) 
+        helper.list_episodes(_url, _handle, episodes)
         quit()
 
     #################################
@@ -83,17 +83,15 @@ if __name__ == '__main__':
     if params['action'] == 'list_parts':
         # list parts from a provided episode.
         parts = wrestling24.get_parts(params['link'])
-        helper.list_parts(_url, _handle, parts) 
+        helper.list_parts(_url, _handle, parts)
         quit()
-
-
 
     #################################
     #             play              #
     #################################
     if params['action'] == 'play':
     #    # Play a video from a provided URL.
-    #    
+    #
     #    quit()
         req = requests.get(params['link'], headers={'referer': "http://watchwrestling24.net"})
         soup = BeautifulSoup(req.text, "html.parser")
@@ -105,31 +103,6 @@ if __name__ == '__main__':
         xbmc.log(str(de_link),level=xbmc.LOGNOTICE)
         wrestling24.play_video(_handle, de_link)
         quit()
-
-
-
-    #################################
-    #              next             #
-    #################################
-    # if params['action'] == 'next':
-    #     # ads a &p= at first and raises the page number every call
-
-    #     if params['page'] == '1':
-    #         url = params['link'] + '&p=' + str(params['page'])
-    #     else:
-    #         url = params['link'] + str(params['page'])
-
-    #     page = int(params['page']) + 1
-    #     videos = xvideos.get_vids(url, params['category'])
-
-    #     if int(videos[0]['page']) == page:
-    #         has_next = False
-    #     else:
-    #         has_next = True
-
-    #     helper.list_videos(_handle, _url, videos, url,
-    #                        params['category'], has_next, page )
-    #     quit()
 
     #################################
     #             error             #

@@ -5,10 +5,10 @@ name="Wrestling 24"
 provider-name="Lord Grey">
 <requires>
   <import addon="xbmc.python" version="2.26.0"/>
-  <import addon="script.module.beautifulsoup4" version="4.5.3"/> 
+  <import addon="script.module.beautifulsoup4" version="4.5.3"/>
   <import addon="script.module.requests" version="2.19.1"/>
-  <import addon="script.module.urlresolver" />  
-</requires> 
+  <import addon="script.module.urlresolver" version="2.10.0" />
+</requires>
 <extension point="xbmc.python.pluginsource" library="main.py">
   <provides>video</provides>
 </extension>

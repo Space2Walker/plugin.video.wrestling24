@@ -23,9 +23,6 @@ jobs:
     - name: LEIA
       run: kodi-addon-checker --branch leia
 
-    - name: MATRIX
-      run: kodi-addon-checker --branch matrix
-
   deploy:
     name: Deploy Addon
     needs: test
